@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
   # Create a Scrollbar
   scrollbar = tkinter.Scrollbar( root, command = text_box.yview )
-  scrollbar.grid( row = 2, column = 3, sticky = "ns" )  # Grid positioning for scrollbar
+  scrollbar.grid( row = 2, column = 3, sticky = "ns" )  # Grid positioning and anchoring for the scrollbar.
 
   # Configure the Text widget to use the scrollbar
   text_box.config( yscrollcommand = scrollbar.set )
