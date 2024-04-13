@@ -1,5 +1,4 @@
 import os
-import time
 import tkinter
 from os.path import join, getsize
 from pathlib import Path
@@ -8,6 +7,11 @@ from typing import List
 
 
 def verify() -> bool:
+  """
+  Validates the user settings and searches the specified directory.
+  :return: True if the search is successful, False otherwise.
+  :rtype: bool
+  """
   # Retrieve the user settings.
   directory = directory_value.get()
   extensions = [word for word in extension_value.get().split()]
@@ -23,7 +27,6 @@ def verify() -> bool:
   print( f"Looking for the following extensions: {extensions}" )
   print( "Searching..." )
   status_label_text.set( f"Searching in {directory}..." )
-  time.sleep( 1 )
 
   # Perform the actual search.
   files = find_all_files( directory )
@@ -44,12 +47,18 @@ def verify() -> bool:
 
 
 def clear_text() -> None:
+  """
+  Clears the text box.
+  """
   text_box.delete( "1.0", END )
 
 
 def find_all_files( root_dir: str ) -> List[str]:
   """
   List all files in the specified directory.
+  :param root_dir: The directory to start searching from.
+  :return: A list of all files in the specified directory.
+  :rtype: List[str]
   """
   all_files: List[str] = []
   dirpath: str
@@ -61,6 +70,7 @@ def find_all_files( root_dir: str ) -> List[str]:
     # Convert dirpath to Path object.
     pathlib_dirpath = Path( dirpath )
     all_files.extend( filenames )
+
     # Convert dirnames and filenames to Path containers.
     pathlib_dirnames: List[Path]
     pathlib_dirnames = [pathlib_dirpath / dirname for dirname in dirnames]
@@ -70,14 +80,21 @@ def find_all_files( root_dir: str ) -> List[str]:
     # Process the Path objects.
     print( f"Directory: {dirpath}" )
     if len( pathlib_dirnames ) > 0:
-      print( f"  {len( pathlib_dirnames )} Subdirectories: {pathlib_dirnames}" )
+      subdir_suffix = "Subdirectory"
+      if len( pathlib_dirnames ) != 1:
+        subdir_suffix = "Subdirectories"
+      print( f"  {len( pathlib_dirnames )} {subdir_suffix}: {pathlib_dirnames}" )
       for i, dirname in enumerate( pathlib_dirnames, start = 1 ):
         # dirname is a pathlib.Path object.
         print( f"    Directory {i} name: {dirname}" )
-    print( f"  {len( pathlib_filenames )} files: {pathlib_filenames}" )
-    for i, filename in enumerate( pathlib_filenames, start = 1 ):
-      # filename is a string.
-      print( f"    File {i} name: {filename}" )
+    if len( pathlib_filenames ) > 0:
+      file_text = "file"
+      if len( pathlib_filenames ) != 1:
+        file_text = "files"
+      print( f"  {len( pathlib_filenames )} {file_text}: {pathlib_filenames}" )
+      for i, filename in enumerate( pathlib_filenames, start = 1 ):
+        # filename is a string.
+        print( f"    File {i} name: {filename}" )
     print()
   return all_files
 
