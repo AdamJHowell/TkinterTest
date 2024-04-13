@@ -12,19 +12,15 @@ def verify() -> bool:
   :return: True if the search is successful, False otherwise.
   :rtype: bool
   """
-  global color
   # Retrieve the user settings.
   directory = directory_value.get()
   extensions = [word for word in extension_value.get().split()]
 
   # Verify that the directory exists.
   if not os.path.isdir( directory ):
-    color = "Red"
     status_label_text.set( "Invalid Directory!" )
     print( f"'{directory}' is an invalid Directory!" )
     return False
-
-  color = "white"
 
   # Update the status before searching.
   print( f"Search beginning in this directory: {directory}" )
@@ -103,12 +99,12 @@ def find_all_files( root_dir: str ) -> List[str]:
   return all_files
 
 
-def change_background_callback( *_args ):
+def directory_check_callback( *_args ):
   global directory_entry
-  global color
-  try:
-    directory_entry.configure( { "background": color } )
-  except ValueError:
+  directory = directory_value.get()
+  if not os.path.isdir( directory ):
+    directory_entry.configure( { "background": "red" } )
+  else:
     directory_entry.configure( { "background": "white" } )
 
 
@@ -117,8 +113,8 @@ if __name__ == "__main__":
   root.title( "Find files" )
   root.geometry( "408x305+50+50" )
   root.minsize( 200, 200 )  # width, height
-  color = "white"
   directory_value = tkinter.StringVar( root )
+  directory_value.trace( "w", directory_check_callback )
   extension_value = tkinter.StringVar( root )
 
   # First grid row.
@@ -140,8 +136,6 @@ if __name__ == "__main__":
 
   # Fourth grid row.
   status_label_text = tkinter.StringVar( root )
-  # This callback assignment must come after directory_entry has been declared because it is used in the callback.
-  status_label_text.trace( "w", change_background_callback )
   status_label_text.set( "Idle" )
   tkinter.Label( root, text = "Status: " ).grid( row = 6, column = 0, sticky = "nsew" )
   tkinter.Label( root, textvariable = status_label_text ).grid( row = 6, column = 1, columnspan = 2, sticky = "w" )
