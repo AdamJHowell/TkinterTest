@@ -1,4 +1,5 @@
 import os
+import time
 import tkinter
 from os.path import join, getsize
 from pathlib import Path
@@ -6,19 +7,30 @@ from tkinter import END
 from typing import List
 
 
-def verify():
+def verify() -> bool:
   # Retrieve the user settings.
   directory = directory_value.get()
   extensions = [word for word in extension_value.get().split()]
-  # Print to the console.
+
+  # Verify that the directory exists.
+  if not os.path.isdir( directory ):
+    status_label_text.set( "Invalid Directory!" )
+    print( f"'{directory}' is an invalid Directory!" )
+    return False
+
+  # Update the status before searching.
   print( f"Search beginning in this directory: {directory}" )
   print( f"Looking for the following extensions: {extensions}" )
-  # Print to the Text() object.
-  text_box.insert( tkinter.END, directory )
-  text_box.insert( tkinter.END, "\n" )
   print( "Searching..." )
+  status_label_text.set( f"Searching in {directory}..." )
+  time.sleep( 1 )
+
+  # Perform the actual search.
   files = find_all_files( directory )
+
+  # Show the results.
   print( f"Search complete, found {len( files )} files." )
+  status_label_text.set( f"Search complete, found {len( files )} files." )
   file_match_list = []
   for filename in files:
     file_extension = filename[filename.rfind( '.' ):]
@@ -28,9 +40,10 @@ def verify():
   for file in file_match_list:
     text_box.insert( tkinter.END, file )
     text_box.insert( tkinter.END, "\n" )
+  return True
 
 
-def clear_text():
+def clear_text() -> None:
   text_box.delete( "1.0", END )
 
 
@@ -76,6 +89,8 @@ if __name__ == "__main__":
   root.geometry( "408x305+50+50" )
   directory_value = tkinter.StringVar( root )
   extension_value = tkinter.StringVar( root )
+  status_label_text = tkinter.StringVar( root )
+  status_label_text.set( "Idle" )
 
   # First grid row.
   tkinter.Label( root, text = "Directory" ).grid( row = 0 )
@@ -94,10 +109,14 @@ if __name__ == "__main__":
   text_box.grid( row = 2, columnspan = 3, sticky = "nsew" )
   root.grid_rowconfigure( 2, weight = 1 )
 
+  # Fourth grid row.
+  tkinter.Label( root, text = "Status: " ).grid( row = 6, column = 0, sticky = "nsew" )
+  tkinter.Label( root, textvariable = status_label_text ).grid( row = 6, column = 1, columnspan = 2, sticky = "nsew" )
+
   # Last grid row.
-  tkinter.Button( root, text = "Search", command = verify ).grid( row = 6, column = 0, sticky = "nsew" )
-  tkinter.Button( root, text = "Clear", command = clear_text ).grid( row = 6, column = 1, sticky = "nsew" )
-  tkinter.Button( root, text = "Exit", command = root.quit ).grid( row = 6, column = 2, sticky = "nsew" )
+  tkinter.Button( root, text = "Search", command = verify ).grid( row = 7, column = 0, sticky = "nsew" )
+  tkinter.Button( root, text = "Clear", command = clear_text ).grid( row = 7, column = 1, sticky = "nsew" )
+  tkinter.Button( root, text = "Exit", command = root.quit ).grid( row = 7, column = 2, sticky = "nsew" )
 
   # Configure column resizing behavior
   root.columnconfigure( 0, weight = 1 )
