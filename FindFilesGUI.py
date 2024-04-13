@@ -12,15 +12,19 @@ def verify() -> bool:
   :return: True if the search is successful, False otherwise.
   :rtype: bool
   """
+  global color
   # Retrieve the user settings.
   directory = directory_value.get()
   extensions = [word for word in extension_value.get().split()]
 
   # Verify that the directory exists.
   if not os.path.isdir( directory ):
+    color = "Red"
     status_label_text.set( "Invalid Directory!" )
     print( f"'{directory}' is an invalid Directory!" )
     return False
+
+  color = "white"
 
   # Update the status before searching.
   print( f"Search beginning in this directory: {directory}" )
@@ -99,24 +103,32 @@ def find_all_files( root_dir: str ) -> List[str]:
   return all_files
 
 
+def change_background_callback( *_args ):
+  global directory_entry
+  global color
+  try:
+    directory_entry.configure( { "background": color } )
+  except ValueError:
+    directory_entry.configure( { "background": "white" } )
+
+
 if __name__ == "__main__":
   root = tkinter.Tk()
   root.title( "Find files" )
-  root.minsize( 200, 200 )  # width, height
   root.geometry( "408x305+50+50" )
+  root.minsize( 200, 200 )  # width, height
+  color = "white"
   directory_value = tkinter.StringVar( root )
   extension_value = tkinter.StringVar( root )
-  status_label_text = tkinter.StringVar( root )
-  status_label_text.set( "Idle" )
 
   # First grid row.
-  tkinter.Label( root, text = "Directory" ).grid( row = 0 )
+  tkinter.Label( root, text = "Directory" ).grid( row = 0, sticky = "w" )
   directory_entry = tkinter.Entry( root, bd = 3, textvariable = directory_value )
   directory_entry.grid( row = 0, column = 1, columnspan = 2, sticky = "nsew" )
   directory_entry.insert( END, "C:\\Media\\Music" )
 
   # Second grid row.
-  tkinter.Label( root, text = "Extensions" ).grid( row = 1 )
+  tkinter.Label( root, text = "Extensions" ).grid( row = 1, sticky = "w" )
   extension_entry = tkinter.Entry( root, bd = 3, textvariable = extension_value )
   extension_entry.grid( row = 1, column = 1, columnspan = 2, sticky = "nsew" )
   extension_entry.insert( END, ".flac .m4a .mp3" )
@@ -127,17 +139,21 @@ if __name__ == "__main__":
   root.grid_rowconfigure( 2, weight = 1 )
 
   # Fourth grid row.
+  status_label_text = tkinter.StringVar( root )
+  # This callback assignment must come after directory_entry has been declared because it is used in the callback.
+  status_label_text.trace( "w", change_background_callback )
+  status_label_text.set( "Idle" )
   tkinter.Label( root, text = "Status: " ).grid( row = 6, column = 0, sticky = "nsew" )
-  tkinter.Label( root, textvariable = status_label_text ).grid( row = 6, column = 1, columnspan = 2, sticky = "nsew" )
+  tkinter.Label( root, textvariable = status_label_text ).grid( row = 6, column = 1, columnspan = 2, sticky = "w" )
 
   # Last grid row.
-  tkinter.Button( root, text = "Search", command = verify ).grid( row = 7, column = 0, sticky = "nsew" )
-  tkinter.Button( root, text = "Clear", command = clear_text ).grid( row = 7, column = 1, sticky = "nsew" )
-  tkinter.Button( root, text = "Exit", command = root.quit ).grid( row = 7, column = 2, sticky = "nsew" )
+  tkinter.Button( root, text = "Search", command = verify ).grid( row = 7, column = 0, sticky = "ew" )
+  tkinter.Button( root, text = "Clear", command = clear_text ).grid( row = 7, column = 1, sticky = "ew" )
+  tkinter.Button( root, text = "Exit", command = root.quit ).grid( row = 7, column = 2, sticky = "e" )
 
   # Configure column resizing behavior
-  root.columnconfigure( 0, weight = 1 )
-  root.columnconfigure( 1, weight = 1 )
+  root.columnconfigure( 0, weight = 0 )
+  root.columnconfigure( 1, weight = 0 )
   root.columnconfigure( 2, weight = 1 )
 
   # Create a Scrollbar
