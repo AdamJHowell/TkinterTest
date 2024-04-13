@@ -19,6 +19,8 @@ def verify():
   print( "Searching..." )
   files = find_files_by_extension( directory, extensions )
   print( "Search complete." )
+  print( f"Number of files: {len( files )}" )
+  print( files )
   for file in files:
     text_box.insert( tkinter.END, file )
     text_box.insert( tkinter.END, "\n" )
@@ -52,13 +54,13 @@ extension_value = tkinter.StringVar( root )
 tkinter.Label( root, text = "Directory" ).grid( row = 0 )
 directory_entry = tkinter.Entry( root, bd = 3, textvariable = directory_value )
 directory_entry.grid( row = 0, column = 1, columnspan = 2 )
-directory_entry.insert( END, "C:\\Media\\Music\\Rush\\" )
+directory_entry.insert( END, "C:\\Media\\Music\\Rush" )
 
 # Second grid row.
 tkinter.Label( root, text = "Extensions" ).grid( row = 1 )
 extension_entry = tkinter.Entry( root, bd = 3, textvariable = extension_value )
 extension_entry.grid( row = 1, column = 1, columnspan = 2 )
-extension_entry.insert( END, ".flac .m4a" )
+extension_entry.insert( END, ".flac .m4a .txt .mp3" )
 
 # Third grid row.
 text_box = tkinter.Text( root, height = 14, width = 50 )
