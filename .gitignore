@@ -1,4 +1,6 @@
 .idea/
+.venv/
+venv/
 *.iml
 cmake-build-*/
 privateInfo.*
