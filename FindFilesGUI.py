@@ -10,11 +10,10 @@ def verify() -> bool:
   """
   Validates the user settings and searches the specified directory.
   :return: True if the search is successful, False otherwise.
-  :rtype: bool
   """
   # Retrieve the user settings.
   directory = directory_value.get()
-  extensions = [word for word in extension_value.get().split()]
+  extensions = list( extension_value.get().split() )
 
   # Verify that the directory exists.
   if not os.path.isdir( directory ):
@@ -36,8 +35,8 @@ def verify() -> bool:
   status_label_text.set( f"Search complete, found {len( files )} files." )
   file_match_list = []
   for filename in files:
-    file_extension = filename[filename.rfind( '.' ):]
-    if file_extension in extensions:
+    file_extension = os.path.splitext( filename )[1].lower()
+    if file_extension in [ext.lower() for ext in extensions]:
       file_match_list.append( filename )
   print( f"Number of files with matching extensions: {len( file_match_list )}" )
   for file in file_match_list:
