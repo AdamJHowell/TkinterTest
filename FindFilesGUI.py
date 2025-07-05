@@ -157,8 +157,36 @@ def browse_directory( entry_widget, fallback_directory: str ) -> None:
     entry_widget.insert( 0, selected_dir )
 
 
+def validate_and_set_user_directory( default_dir: str = None ) -> str:
+  """
+  Validates a given directory string.
+  If the directory is not valid, it returns an OS-appropriate user's home directory.
+  :param default_dir: The directory as a string to validate. If None or an empty string,
+  :returns the user's home directory.
+  """
+  # Check if a default_dir was provided and is not empty.
+  if default_dir:
+    # Get the absolute path to handle relative paths correctly.
+    abs_default_dir = os.path.abspath( default_dir )
+
+    # Check if the absolute path exists and is a directory.
+    if os.path.isdir( abs_default_dir ):
+      print( f"Info: Provided directory '{default_dir}' is valid and exists." )
+      return abs_default_dir
+    else:
+      print( f"Warning: Provided directory '{default_dir}' does not exist or is not a directory. Falling back to user's home directory." )
+  else:
+    print( "Info: No default directory provided. Falling back to user's home directory." )
+
+  # If the default_dir was invalid or not provided, return the user's home directory.
+  # Path.home() is a cross-platform way to get the user's home directory.
+  user_home_dir = str( Path.home() )
+  print( f"Using user's home directory: '{user_home_dir}'" )
+  return user_home_dir
+
+
 if __name__ == "__main__":
-  default_directory = "C:\\Media\\Music"
+  default_directory = validate_and_set_user_directory( "C:\\Media\\Music" )
   root = tkinter.Tk()
   root.title( "Find files" )
   root.geometry( "408x305+50+50" )
@@ -184,7 +212,7 @@ if __name__ == "__main__":
   tkinter.Label( root, text = "Extensions" ).grid( row = 1, sticky = "w" )
   extension_entry = tkinter.Entry( root, bd = 3, textvariable = extension_value )
   extension_entry.grid( row = 1, column = 1, columnspan = 2, sticky = "nsew" )
-  extension_entry.insert( END, ".flac .m4a .mp3" )
+  extension_entry.insert( END, ".flac .m4a .mp3 .ogg" )
 
   # Third grid row.
   text_box = tkinter.Text( root, height = 14, width = 50 )
