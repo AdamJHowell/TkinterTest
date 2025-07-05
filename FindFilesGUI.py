@@ -142,17 +142,23 @@ def show_search_results( file_match_list ) -> None:
   status_label_text.set( f"Search complete, found {len( file_match_list )} files." )
 
 
-def browse_directory( entry_widget ):
+def browse_directory( entry_widget, fallback_directory: str ) -> None:
+  """
+  Opens a file dialog to select a directory and updates the entry widget with the selected directory.
+  :param entry_widget: The Entry widget to update with the selected directory.
+  :param fallback_directory: The directory to use as the initial directory in the file dialog.
+  """
   current_dir = entry_widget.get()
   selected_dir = filedialog.askdirectory(
     title = "Select a directory",
-    initialdir = current_dir if current_dir else "C:\\Media\\Music" )
+    initialdir = current_dir if current_dir else fallback_directory )
   if selected_dir:
     entry_widget.delete( 0, END )
     entry_widget.insert( 0, selected_dir )
 
 
 if __name__ == "__main__":
+  default_directory = "C:\\Media\\Music"
   root = tkinter.Tk()
   root.title( "Find files" )
   root.geometry( "408x305+50+50" )
@@ -165,13 +171,13 @@ if __name__ == "__main__":
   tkinter.Label( root, text = "Directory" ).grid( row = 0, sticky = "w" )
   directory_entry = tkinter.Entry( root, bd = 3, textvariable = directory_value )
   directory_entry.grid( row = 0, column = 1, columnspan = 2, sticky = "nsew" )
-  directory_entry.insert( END, "C:\\Media\\Music" )
+  directory_entry.insert( END, default_directory )
 
   # Create a button to browse for the directory.
   tkinter.Button(
     root,
     text = "Browse...",
-    command = lambda: browse_directory( directory_entry )
+    command = lambda: browse_directory( directory_entry, default_directory )
   ).grid( row = 0, column = 3, sticky = "ew" )
 
   # Second grid row.
