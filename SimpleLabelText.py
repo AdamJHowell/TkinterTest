@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Tk, Label
 
 root = Tk()
 root.title( "Tk Example" )

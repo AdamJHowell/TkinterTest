@@ -62,29 +62,29 @@ def find_all_files( root_dir: str ) -> List[str]:
   """
   all_files: List[str] = []
   dirpath: str
-  dirnames: List[str]
+  dir_names: List[str]
   filenames: List[str]
-  for dirpath, dirnames, filenames in os.walk( root_dir ):
+  for dirpath, dir_names, filenames in os.walk( root_dir ):
     print( f"Directory '{dirpath}' consumes {format( sum( getsize( join( dirpath, name ) ) for name in filenames ), ',' )} bytes on disk (not including subdirectories)." )
 
     # Convert dirpath to Path object.
     pathlib_dirpath = Path( dirpath )
     all_files.extend( filenames )
 
-    # Convert dirnames and filenames to Path containers.
-    pathlib_dirnames: List[Path]
-    pathlib_dirnames = [pathlib_dirpath / dirname for dirname in dirnames]
+    # Convert dir_names and filenames to Path containers.
+    pathlib_dir_names: List[Path]
+    pathlib_dir_names = [pathlib_dirpath / dirname for dirname in dir_names]
     pathlib_filenames: List[Path]
     pathlib_filenames = [pathlib_dirpath / filename for filename in filenames]
 
     # Process the Path objects.
     print( f"Directory: {dirpath}" )
-    if len( pathlib_dirnames ) > 0:
+    if len( pathlib_dir_names ) > 0:
       subdir_suffix = "Subdirectory"
-      if len( pathlib_dirnames ) != 1:
+      if len( pathlib_dir_names ) != 1:
         subdir_suffix = "Subdirectories"
-      print( f"  {len( pathlib_dirnames )} {subdir_suffix}: {pathlib_dirnames}" )
-      for i, dirname in enumerate( pathlib_dirnames, start = 1 ):
+      print( f"  {len( pathlib_dir_names )} {subdir_suffix}: {pathlib_dir_names}" )
+      for i, dirname in enumerate( pathlib_dir_names, start = 1 ):
         # dirname is a pathlib.Path object.
         print( f"    Directory {i} name: {dirname}" )
     if len( pathlib_filenames ) > 0:

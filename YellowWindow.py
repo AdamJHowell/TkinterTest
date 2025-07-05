@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Tk
 
 root = Tk()  # create a root widget
 root.title( "Tk Example" )
