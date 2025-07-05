@@ -1,4 +1,5 @@
 import os
+import threading
 import tkinter
 from os.path import join, getsize
 from pathlib import Path
@@ -6,10 +7,9 @@ from tkinter import END
 from typing import List
 
 
-def verify() -> bool:
+def verify() -> None:
   """
   Validates the user settings and searches the specified directory.
-  :return: True if the search is successful, False otherwise.
   """
   # Retrieve the user settings.
   directory = directory_value.get()
@@ -19,30 +19,36 @@ def verify() -> bool:
   if not os.path.isdir( directory ):
     status_label_text.set( "Invalid Directory!" )
     print( f"'{directory}' is an invalid Directory!" )
-    return False
+    return
 
   # Update the status before searching.
   print( f"Search beginning in this directory: {directory}" )
   print( f"Looking for the following extensions: {extensions}" )
   print( "Searching..." )
   status_label_text.set( f"Searching in {directory}..." )
+  # Start the search in a new thread
+  threading.Thread(
+    target = threaded_search,
+    args = (directory, extensions),
+    daemon = True
+  ).start()
 
-  # Perform the actual search.
-  files = find_all_files( directory )
-
-  # Show the results.
-  print( f"Search complete, found {len( files )} files." )
-  status_label_text.set( f"Search complete, found {len( files )} files." )
-  file_match_list = []
-  for filename in files:
-    file_extension = os.path.splitext( filename )[1].lower()
-    if file_extension in [ext.lower() for ext in extensions]:
-      file_match_list.append( filename )
-  print( f"Number of files with matching extensions: {len( file_match_list )}" )
-  for file in file_match_list:
-    text_box.insert( tkinter.END, file )
-    text_box.insert( tkinter.END, "\n" )
-  return True
+  # # Perform the actual search.
+  # files = find_all_files( directory )
+  #
+  # # Show the results.
+  # print( f"Search complete, found {len( files )} files." )
+  # status_label_text.set( f"Search complete, found {len( files )} files." )
+  # file_match_list = []
+  # for filename in files:
+  #   file_extension = os.path.splitext( filename )[1].lower()
+  #   if file_extension in [ext.lower() for ext in extensions]:
+  #     file_match_list.append( filename )
+  # print( f"Number of files with matching extensions: {len( file_match_list )}" )
+  # for file in file_match_list:
+  #   text_box.insert( tkinter.END, file )
+  #   text_box.insert( tkinter.END, "\n" )
+  # return True
 
 
 def clear_text() -> None:
@@ -57,21 +63,24 @@ def find_all_files( root_dir: str ) -> List[str]:
   List all files in the specified directory.
   :param root_dir: The directory to start searching from.
   :return: A list of all files in the specified directory.
-  :rtype: List[str]
   """
   dirpath: str
   dir_names: List[str]
   filenames: List[str]
   all_files: List[str] = []
-  for dirpath, dir_names, filenames in os.walk( root_dir ):
-    print( f"Directory '{dirpath}' consumes {format( sum( getsize( join( dirpath, name ) ) for name in filenames ), ',' )} bytes on disk (not including subdirectories)." )
+  try:
+    for dirpath, dir_names, filenames in os.walk( root_dir ):
+      print( f"Directory '{dirpath}' consumes {format( sum( getsize( join( dirpath, name ) ) for name in filenames ), ',' )} bytes on disk (not including subdirectories)." )
 
-    # Convert dirpath to Path object.
-    pathlib_dirpath = Path( dirpath )
-    all_files.extend( filenames )
+      # Convert dirpath to Path object.
+      pathlib_dirpath = Path( dirpath )
+      all_files.extend( filenames )
 
-    # Print the directory and file names.
-    print_dirs_and_files( dirpath, dir_names, filenames, pathlib_dirpath )
+      # Print the directory and file names.
+      print_dirs_and_files( dirpath, dir_names, filenames, pathlib_dirpath )
+  except Exception as exception:
+    print( f"An error occurred while searching for files: {exception}" )
+    status_label_text.set( "Error during search!" )
   return all_files
 
 
@@ -82,7 +91,6 @@ def print_dirs_and_files( dirpath: str, dir_names: list[str], filenames: list[st
   :param dir_names: List of directory names returned by os.walk().
   :param filenames: List of file names returned by os.walk().
   :param pathlib_dirpath: The Path object of the current directory.
-  :return: None
   """
   # Convert dir_names and filenames to Path containers.
   pathlib_dir_names: List[Path]
@@ -110,13 +118,46 @@ def print_dirs_and_files( dirpath: str, dir_names: list[str], filenames: list[st
   print()
 
 
-def directory_check_callback( *_args ):
-  global directory_entry
+def directory_check_callback( entry, *_args ) -> None:
+  """
+  This callback function checks if the directory specified in the entry widget exists.
+  If the directory does not exist, it changes the background color of the entry widget to red.
+  """
   directory = directory_value.get()
   if not os.path.isdir( directory ):
-    directory_entry.configure( { "background": "red" } )
+    entry.configure( { "background": "red" } )
   else:
-    directory_entry.configure( { "background": "white" } )
+    entry.configure( { "background": "white" } )
+
+
+def threaded_search( directory, extensions ) -> None:
+  """
+  This function is run in a separate thread to perform the file search.
+  It finds all files in the specified directory with the given extensions.
+  :param directory: The directory to search in.
+  :param extensions: A list of file extensions to search for.
+  """
+  # Perform the actual search in a background thread.
+  files = find_all_files( directory )
+  file_match_list = []
+  extensions = [ext.lower() for ext in extensions]
+  for filename in files:
+    extension = os.path.splitext( filename )[1].lower()
+    if extension in extensions:
+      file_match_list.append( filename )
+  # Use after() to schedule UI update in the main thread.
+  root.after( 0, show_search_results, file_match_list )
+
+
+def show_search_results( file_match_list ) -> None:
+  """
+  This function updates the text box with the search results.
+  :param file_match_list: A list of files that match the search criteria.
+  """
+  text_box.delete( "1.0", END )
+  for file in file_match_list:
+    text_box.insert( tkinter.END, file + "\n" )
+  status_label_text.set( f"Search complete, found {len( file_match_list )} files." )
 
 
 if __name__ == "__main__":
@@ -125,7 +166,7 @@ if __name__ == "__main__":
   root.geometry( "408x305+50+50" )
   root.minsize( 200, 200 )  # width, height
   directory_value = tkinter.StringVar( root )
-  directory_value.trace( "w", directory_check_callback )
+  directory_value.trace( "w", lambda *args: directory_check_callback( directory_entry, *args ) )
   extension_value = tkinter.StringVar( root )
 
   # First grid row.
