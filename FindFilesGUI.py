@@ -59,10 +59,10 @@ def find_all_files( root_dir: str ) -> List[str]:
   :return: A list of all files in the specified directory.
   :rtype: List[str]
   """
-  all_files: List[str] = []
   dirpath: str
   dir_names: List[str]
   filenames: List[str]
+  all_files: List[str] = []
   for dirpath, dir_names, filenames in os.walk( root_dir ):
     print( f"Directory '{dirpath}' consumes {format( sum( getsize( join( dirpath, name ) ) for name in filenames ), ',' )} bytes on disk (not including subdirectories)." )
 
@@ -71,16 +71,16 @@ def find_all_files( root_dir: str ) -> List[str]:
     all_files.extend( filenames )
 
     # Print the directory and file names.
-    print_dirs_and_files( dir_names, dirpath, filenames, pathlib_dirpath )
+    print_dirs_and_files( dirpath, dir_names, filenames, pathlib_dirpath )
   return all_files
 
 
-def print_dirs_and_files( dir_names: list[str], dirpath: str, filenames: list[str], pathlib_dirpath: Path ) -> None:
+def print_dirs_and_files( dirpath: str, dir_names: list[str], filenames: list[str], pathlib_dirpath: Path ) -> None:
   """
   Print the directory and file names in a formatted way.
-  :param dir_names: List of directory names.
-  :param dirpath: The path of the current directory.
-  :param filenames: List of file names.
+  :param dirpath: The path of the current directory returned by os.walk().
+  :param dir_names: List of directory names returned by os.walk().
+  :param filenames: List of file names returned by os.walk().
   :param pathlib_dirpath: The Path object of the current directory.
   :return: None
   """
