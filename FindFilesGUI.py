@@ -33,23 +33,6 @@ def verify() -> None:
     daemon = True
   ).start()
 
-  # # Perform the actual search.
-  # files = find_all_files( directory )
-  #
-  # # Show the results.
-  # print( f"Search complete, found {len( files )} files." )
-  # status_label_text.set( f"Search complete, found {len( files )} files." )
-  # file_match_list = []
-  # for filename in files:
-  #   file_extension = os.path.splitext( filename )[1].lower()
-  #   if file_extension in [ext.lower() for ext in extensions]:
-  #     file_match_list.append( filename )
-  # print( f"Number of files with matching extensions: {len( file_match_list )}" )
-  # for file in file_match_list:
-  #   text_box.insert( tkinter.END, file )
-  #   text_box.insert( tkinter.END, "\n" )
-  # return True
-
 
 def clear_text() -> None:
   """
