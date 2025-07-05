@@ -3,7 +3,7 @@ import threading
 import tkinter
 from os.path import join, getsize
 from pathlib import Path
-from tkinter import END
+from tkinter import END, filedialog
 from typing import List
 
 
@@ -96,7 +96,6 @@ def print_dirs_and_files( dirpath: str, dir_names: list[str], filenames: list[st
       file_text = "files"
     print( f"  {len( pathlib_filenames )} {file_text}: {pathlib_filenames}" )
     for i, filename in enumerate( pathlib_filenames, start = 1 ):
-      # filename is a string.
       print( f"    File {i} name: {filename}" )
   print()
 
@@ -143,6 +142,16 @@ def show_search_results( file_match_list ) -> None:
   status_label_text.set( f"Search complete, found {len( file_match_list )} files." )
 
 
+def browse_directory( entry_widget ):
+  current_dir = entry_widget.get()
+  selected_dir = filedialog.askdirectory(
+    title = "Select a directory",
+    initialdir = current_dir if current_dir else "C:\\Media\\Music" )
+  if selected_dir:
+    entry_widget.delete( 0, END )
+    entry_widget.insert( 0, selected_dir )
+
+
 if __name__ == "__main__":
   root = tkinter.Tk()
   root.title( "Find files" )
@@ -157,6 +166,13 @@ if __name__ == "__main__":
   directory_entry = tkinter.Entry( root, bd = 3, textvariable = directory_value )
   directory_entry.grid( row = 0, column = 1, columnspan = 2, sticky = "nsew" )
   directory_entry.insert( END, "C:\\Media\\Music" )
+
+  # Create a button to browse for the directory.
+  tkinter.Button(
+    root,
+    text = "Browse...",
+    command = lambda: browse_directory( directory_entry )
+  ).grid( row = 0, column = 3, sticky = "ew" )
 
   # Second grid row.
   tkinter.Label( root, text = "Extensions" ).grid( row = 1, sticky = "w" )
@@ -184,6 +200,7 @@ if __name__ == "__main__":
   root.columnconfigure( 0, weight = 0 )
   root.columnconfigure( 1, weight = 0 )
   root.columnconfigure( 2, weight = 1 )
+  root.columnconfigure( 3, weight = 0 )
 
   # Create a Scrollbar
   scrollbar = tkinter.Scrollbar( root, command = text_box.yview )
