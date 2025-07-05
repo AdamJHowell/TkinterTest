@@ -70,32 +70,44 @@ def find_all_files( root_dir: str ) -> List[str]:
     pathlib_dirpath = Path( dirpath )
     all_files.extend( filenames )
 
-    # Convert dir_names and filenames to Path containers.
-    pathlib_dir_names: List[Path]
-    pathlib_dir_names = [pathlib_dirpath / dirname for dirname in dir_names]
-    pathlib_filenames: List[Path]
-    pathlib_filenames = [pathlib_dirpath / filename for filename in filenames]
-
-    # Process the Path objects.
-    print( f"Directory: {dirpath}" )
-    if len( pathlib_dir_names ) > 0:
-      subdir_suffix = "Subdirectory"
-      if len( pathlib_dir_names ) != 1:
-        subdir_suffix = "Subdirectories"
-      print( f"  {len( pathlib_dir_names )} {subdir_suffix}: {pathlib_dir_names}" )
-      for i, dirname in enumerate( pathlib_dir_names, start = 1 ):
-        # dirname is a pathlib.Path object.
-        print( f"    Directory {i} name: {dirname}" )
-    if len( pathlib_filenames ) > 0:
-      file_text = "file"
-      if len( pathlib_filenames ) != 1:
-        file_text = "files"
-      print( f"  {len( pathlib_filenames )} {file_text}: {pathlib_filenames}" )
-      for i, filename in enumerate( pathlib_filenames, start = 1 ):
-        # filename is a string.
-        print( f"    File {i} name: {filename}" )
-    print()
+    # Print the directory and file names.
+    print_dirs_and_files( dir_names, dirpath, filenames, pathlib_dirpath )
   return all_files
+
+
+def print_dirs_and_files( dir_names: list[str], dirpath: str, filenames: list[str], pathlib_dirpath: Path ) -> None:
+  """
+  Print the directory and file names in a formatted way.
+  :param dir_names: List of directory names.
+  :param dirpath: The path of the current directory.
+  :param filenames: List of file names.
+  :param pathlib_dirpath: The Path object of the current directory.
+  :return: None
+  """
+  # Convert dir_names and filenames to Path containers.
+  pathlib_dir_names: List[Path]
+  pathlib_dir_names = [pathlib_dirpath / dirname for dirname in dir_names]
+  pathlib_filenames: List[Path]
+  pathlib_filenames = [pathlib_dirpath / filename for filename in filenames]
+  # Process the Path objects.
+  print( f"Directory: {dirpath}" )
+  if len( pathlib_dir_names ) > 0:
+    subdir_suffix = "Subdirectory"
+    if len( pathlib_dir_names ) != 1:
+      subdir_suffix = "Subdirectories"
+    print( f"  {len( pathlib_dir_names )} {subdir_suffix}: {pathlib_dir_names}" )
+    for i, dirname in enumerate( pathlib_dir_names, start = 1 ):
+      # dirname is a pathlib.Path object.
+      print( f"    Directory {i} name: {dirname}" )
+  if len( pathlib_filenames ) > 0:
+    file_text = "file"
+    if len( pathlib_filenames ) != 1:
+      file_text = "files"
+    print( f"  {len( pathlib_filenames )} {file_text}: {pathlib_filenames}" )
+    for i, filename in enumerate( pathlib_filenames, start = 1 ):
+      # filename is a string.
+      print( f"    File {i} name: {filename}" )
+  print()
 
 
 def directory_check_callback( *_args ):
